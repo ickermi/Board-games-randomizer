@@ -1,6 +1,5 @@
 import random
 from pathlib import Path
-from time import sleep
 
 from kivy.app import App
 from kivy.uix.button import Button
@@ -8,7 +7,6 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.image import Image
-from kivy.clock import Clock
 
 
 class ItemToRandomize(BoxLayout):
@@ -29,24 +27,27 @@ class ItemToRandomize(BoxLayout):
 
 class MyApp(App):
 
-    def build(self):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.items_layout = GridLayout(cols=2)
         self.preparation_tokens = [str(i.absolute()) for i in Path("images/duel/preparation tokens").glob("**/*")]
+
+    def build(self):
         token_locations = MyApp.get_random_location_of_items(len(self.preparation_tokens))
 
         for token, location in zip(self.preparation_tokens, token_locations):
             self.items_layout.add_widget(ItemToRandomize(image_path=token, item_location=str(location)))
 
-        main_layout = BoxLayout(orientation='vertical')
+        layout = BoxLayout(orientation='vertical')
 
-        main_layout.add_widget(self.items_layout)
+        layout.add_widget(self.items_layout)
 
         btn_shuffle = Button(text='перемешать', size_hint_y=0.1)
-        main_layout.add_widget(btn_shuffle)
+        layout.add_widget(btn_shuffle)
 
         btn_shuffle.bind(on_release=self.on_shuffle)
 
-        return main_layout
+        return layout
 
     def on_shuffle(self, button):
         self.shuffle()
